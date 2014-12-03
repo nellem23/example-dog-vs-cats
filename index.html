@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>JS Bin</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+
+</head>
+<body>
+<div id="game">
+  <h1>Which is the better animal?</h1>
+  <div class="rows"></div>  
+  <div class="results"></div>
+</div>
+
+<script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js'></script>
+// <script type="text/javascript">
+// $(document).ready(function(){ 
+						   
+// 	$("div").css("border", "1px solid grey");
+	
+// });
+// </script>
+
+<script type="text/javascript">
+	var clientId = 'fbb13314c6b34723a09523ab3521acca';
+
+if (!clientId) {
+  // alert('Put your own instagram client id in the above code to use this example.');
+}
+
+var urlTemplate = "https://api.instagram.com/v1/tags/<ANIMAL>/media/recent";
+
+var makeRequest = function(animal) {
+  
+    var req = $.ajax({
+        url: urlTemplate.replace("<ANIMAL>", animal),
+        dataType: 'jsonp',
+        data: {
+            client_id: clientId
+       },
+    })
+    
+    return req;
+}; 
+
+var dogRequest = makeRequest('dog');
+var catRequest = makeRequest('cat');
+
+var createRow = function(dogPhoto, catPhoto) {
+  var dogCol = "<div class='row'><div class='col dog'><img src='" + dogPhoto + "'></div>";
+    var catCol = "<div class='col cat'><img src='" + catPhoto + "'></div></div>";
+  return $(dogCol + catCol);
+}
+
+var recalculateScore = function() {
+  var dogScore = 0, catScore = 0;
+  $('.row').each(function() {
+    var selected = $(this).find('.selected');
+    if (selected.length) {
+      if (selected.parents('.dog').length) {
+        dogScore++;
+      } else if (selected.parents('.cat').length) {
+        catScore++;
+      }
+      
+    }
+  });
+  $('.results').html("dogs: " + dogScore + " cats:" + catScore);
+};
+
+var makeGame = function(dogResults, catResults) {
+  // First lets store the actual results we need in 
+  // a variable so its easier to work with.
+  var dogArray = dogResults[0].data;
+  var catArray = catResults[0].data;
+  
+  // The results can have uneven numbers, so lets find 
+  // the result with the fewest items and chop our
+  var limit = Math.min(dogArray.length, catArray.length) - 1;
+  
+  // slice lets take only the parts you want from an array, 
+  // so here I'm cutting from the begging (0) to the limit, 
+  // which is the smallest length.
+  dogArray = dogArray.slice(0, limit);
+  catArray = catArray.slice(0, limit);
+  
+  // Now that we have equal length arrays we can loop over 
+  // and add them to our page.
+  
+  var rows = $('.rows');
+  
+  for (var i = 0; i < dogArray.length; i++) {
+    var dogPhoto = dogArray[i].images.low_resolution.url;
+    var catPhoto = catArray[i].images.low_resolution.url;
+    rows.append(createRow(dogPhoto, catPhoto));
+  }
+  
+  $('.row').on('click', 'img', function(e) {
+    var row = $(this).parents('.row');
+    row.find('img').removeClass('selected');
+    $(this).addClass('selected');
+    recalculateScore()
+  });
+  
+};
+
+$.when(dogRequest, catRequest).done(makeGame);
+</script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+#game {
+  width: 600px;
+  margin: 0 auto;
+  text-align: center;
+  font-family: Helvetica;
+}
+.col {
+  float: left;
+  padding: 5px;
+}
+.col img {
+  width: 250px;
+}
+.row {
+  clear: both;0
+}
+.results {
+  clear: both;
+}
+
+.selected {
+  border: 2px red solid;
+}
+
+.row {
+  background-color: #222222;
+  border-style: solid 1px #333333;
+
+}
